@@ -1,0 +1,97 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release (e.g. v1.0.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve version from tag
+        id: version
+        env:
+          TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          case "$TAG" in v[0-9]*.[0-9]*.[0-9]*) ;; *) echo "::error::tag must look like vX.Y.Z (got $TAG)"; exit 1;; esac
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      # On manual dispatch: check out the tag if it exists, otherwise create it
+      # on the dispatched commit and push it.
+      - name: Ensure the tag exists and is checked out
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            git fetch origin "refs/tags/$TAG:refs/tags/$TAG"
+          else
+            git tag -a "$TAG" -m "Sargas Soundtrack ${TAG#v}"
+            git push origin "refs/tags/$TAG"
+          fi
+          git checkout --quiet "$TAG"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test
+        run: npm test
+
+      - name: Stamp version into manifest
+        run: |
+          node - <<'JS'
+          const fs = require("node:fs");
+          const version = process.env.VERSION;
+          const repo = process.env.GITHUB_REPOSITORY;
+          const m = JSON.parse(fs.readFileSync("module.json", "utf8"));
+          m.version = version;
+          m.manifest = `https://github.com/${repo}/releases/latest/download/module.json`;
+          m.download = `https://github.com/${repo}/releases/download/v${version}/sargas-soundtrack.zip`;
+          fs.writeFileSync("module.json", JSON.stringify(m, null, 2) + "\n");
+          const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+          pkg.version = version;
+          fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+          JS
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - name: Check manifest
+        run: node tools/check-manifest.mjs
+
+      - name: Reconcile changelog
+        id: changelog
+        run: node .github/scripts/release-changelog.mjs "${{ steps.version.outputs.version }}" > release-notes.md
+
+      - name: Build zip
+        run: |
+          zip -r sargas-soundtrack.zip \
+            module.json README.md CHANGELOG.md LICENSE \
+            lang scripts styles templates \
+            -x '*.test.js' -x '*/.DS_Store'
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: v${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          files: |
+            module.json
+            sargas-soundtrack.zip

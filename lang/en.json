@@ -1,0 +1,131 @@
+{
+  "SARGAS_SOUNDTRACK": {
+    "Title": "Sargas Soundtrack",
+    "Log": {
+      "ready": "Ready."
+    },
+    "Settings": {
+      "IceServers": {
+        "Name": "ICE servers (JSON)",
+        "Hint": "STUN/TURN servers used for the audio connection, as a JSON array. Example with TURN: [{\"urls\":\"stun:stun.l.google.com:19302\"},{\"urls\":\"turn:turn.example.com:3478\",\"username\":\"user\",\"credential\":\"pass\"}]. Invalid values fall back to the default.",
+        "ErrorJson": "not valid JSON",
+        "ErrorShape": "expected a non-empty array of objects with urls (text or list), and optional username and credential (text)",
+        "ErrorScheme": "every url must start with stun:, stuns:, turn: or turns:",
+        "Fallback": "Sargas Soundtrack: invalid ICE servers setting ({reason}). Using the default STUN server."
+      },
+      "Bitrate": {
+        "Name": "Stream bitrate (kbps)",
+        "Hint": "Opus bitrate of the music sent to each player, from 32 to 256. 128 is a good balance for stereo music; raise it for very rich music, lower it if a player's connection struggles. The GM row shows the measured bitrate and packet loss per player while live."
+      },
+      "Checklist": {
+        "Name": "Setup checklist",
+        "Label": "Open checklist",
+        "Hint": "Checks the GM's browser and audio source, and lets you send a test tone to the players. Only the GM sees this."
+      }
+    },
+    "Notify": {
+      "Live": "Sargas Soundtrack: you are live.",
+      "Stopped": "Sargas Soundtrack: broadcast stopped.",
+      "SourceEnded": "Sargas Soundtrack: the audio source ended, so the broadcast was stopped."
+    },
+    "Error": {
+      "insecure": "Audio capture needs a secure connection (HTTPS or localhost).",
+      "unsupported": "This browser cannot capture audio this way.",
+      "wrongSurface": "Please share a browser tab (not a window or the whole screen) and tick \"Also share tab audio\".",
+      "noAudio": "No audio was shared. Tick \"Also share tab audio\" in the picker.",
+      "cancelled": "Audio capture was cancelled or not allowed.",
+      "deviceMissing": "The selected audio device was not found. Check that it is connected.",
+      "needsClick": "Tab capture must be started by clicking a button.",
+      "failed": "Audio capture failed. See the console for details.",
+      "notActiveGM": "Only the active GM can broadcast.",
+      "notCapturing": "Choose an audio source before going live."
+    },
+    "Row": {
+      "Status": {
+        "Idle": "Not live",
+        "GMLive": "You are live",
+        "Connecting": "Connecting…",
+        "Live": "Live from the GM",
+        "Failed": "Connection failed"
+      },
+      "GoLive": "Go live",
+      "Stop": "Stop",
+      "Source": "Source",
+      "SourceTab": "Browser tab",
+      "SourceDevice": "Audio device",
+      "Device": "Audio device",
+      "RefreshDevices": "Refresh the list of audio devices (may briefly use the microphone)",
+      "ChooseDevice": "Choose a device…",
+      "SavedDevice": "Saved device (refresh the list)",
+      "MissingDevice": "Saved device (not found)",
+      "SendLevel": "Send level",
+      "MonitorLevel": "Monitor",
+      "FadeOut": "Fade out",
+      "FadeIn": "Fade in",
+      "Meter": "Level of the music being sent",
+      "Listeners": "Players",
+      "NoListeners": "No players online",
+      "Peer": {
+        "Connected": "Connected",
+        "Connecting": "Connecting",
+        "Failed": "Failed",
+        "NotConnected": "Not connected"
+      },
+      "Stats": {
+        "Loss": "{pct} % loss"
+      },
+      "NowPlaying": "Now playing",
+      "NowPlayingPlaceholder": "Shown to every player",
+      "Mute": "Mute for me",
+      "AudioLockedHint": "Audio starts after you click anywhere in the window."
+    },
+    "Checklist": {
+      "Title": "Sargas Soundtrack: setup checklist",
+      "Status": {
+        "pass": "OK",
+        "warn": "Check",
+        "info": "Info"
+      },
+      "Secure": {
+        "Title": "Secure connection (HTTPS)",
+        "Pass": "This page is served over HTTPS (or localhost), so audio capture is allowed.",
+        "Warn": "This page is not in a secure context. Browsers block audio capture here. Open Foundry over HTTPS."
+      },
+      "Browser": {
+        "Title": "Browser can capture tab audio",
+        "Pass": "Chromium-based browser with tab capture available.",
+        "Firefox": "Firefox cannot capture tab audio. Use Chrome or Edge on the GM's computer (or the Audio device source).",
+        "Other": "This browser is not Chromium-based, so tab audio capture is unlikely to work. Use Chrome or Edge.",
+        "NoApi": "This browser does not offer screen and tab capture (getDisplayMedia). Use the Audio device source or another browser."
+      },
+      "Source": {
+        "Title": "Audio source",
+        "Tab": "Browser tab: the browser will ask you to pick a tab when you click Go live. Tick \"Also share tab audio\".",
+        "DeviceNone": "Audio device: no device chosen yet. Pick one in the sidebar row.",
+        "DeviceUnchecked": "Audio device chosen. Press the button to check that it still exists (this may briefly use the microphone).",
+        "DeviceFound": "Audio device found: {label}.",
+        "DeviceMissing": "The saved audio device was not found. Check that it is connected and pick it again.",
+        "DeviceError": "Could not list the audio devices. Check the browser's microphone permission."
+      },
+      "Headphones": {
+        "Title": "Headphones",
+        "Detail": "Wear headphones. Otherwise your speakers feed the music back into your microphone and Discord, and everyone hears an echo."
+      },
+      "Tone": {
+        "Title": "Test tone",
+        "Detail": "Sends a 10 second stereo tone (440 Hz left, 660 Hz right) to the players through their Music slider. If you were live, your source comes back afterwards."
+      },
+      "CheckDevices": "Check devices",
+      "SendTone": "Send test tone",
+      "Recheck": "Check again",
+      "Notes": {
+        "Title": "If players hear nothing or something odd",
+        "Muted": "A muted browser or a muted tab captures silence. Unmute the music tab (and the browser) in Windows and in the browser.",
+        "VbDefaults": "The VB-Cable installer makes CABLE the default Windows devices. Set your real speakers or headphones and microphone back as the Windows defaults.",
+        "Discord": "In Discord keep input and output on \"Default\" or on your real devices, never on a CABLE device.",
+        "Routing": "Send only your desktop music app to CABLE Input, in Windows \"Volume mixer\" or \"App volume and device preferences\".",
+        "Headphones": "Wear headphones while you broadcast."
+      }
+    }
+  }
+}

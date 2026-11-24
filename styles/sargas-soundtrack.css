@@ -1,0 +1,57 @@
+/* Sargas Soundtrack — every rule is scoped under .sargas-soundtrack. */
+.sargas-soundtrack.ss-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.25rem 0;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--color-border-light-tertiary, #8884);
+  border-radius: 6px;
+  background: var(--color-cool-5-90, #00000010);
+  font-size: var(--font-size-12, 12px);
+}
+.sargas-soundtrack [hidden] { display: none !important; }
+.sargas-soundtrack .ss-head { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.sargas-soundtrack .ss-title { margin: 0; border: 0; font-size: var(--font-size-14, 14px); }
+.sargas-soundtrack .ss-live-state { padding: 0 0.5rem; border-radius: 999px; background: #8883; white-space: nowrap; }
+.sargas-soundtrack .ss-live-state[data-state="live"] { background: #2e8b3d; color: #fff; }
+.sargas-soundtrack .ss-live-state[data-state="connecting"] { background: #c68a00; color: #fff; }
+.sargas-soundtrack .ss-live-state[data-state="failed"] { background: #b03030; color: #fff; }
+.sargas-soundtrack .ss-buttons { display: flex; gap: 0.35rem; }
+.sargas-soundtrack .ss-buttons button { flex: 1; }
+.sargas-soundtrack .ss-field label { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.sargas-soundtrack .ss-field input[type="range"],
+.sargas-soundtrack .ss-field select,
+.sargas-soundtrack .ss-field input[type="text"] { flex: 1; min-width: 0; }
+.sargas-soundtrack .ss-device { display: flex; gap: 0.35rem; }
+.sargas-soundtrack .ss-device select { flex: 1; min-width: 0; }
+.sargas-soundtrack .ss-meter { height: 6px; border-radius: 3px; background: #8883; overflow: hidden; }
+.sargas-soundtrack .ss-meter-fill {
+  width: calc(var(--ss-level, 0) * 100%);
+  height: 100%;
+  background: linear-gradient(90deg, #2e8b3d, #c6b400 70%, #b03030);
+  transition: width 80ms linear;
+}
+.sargas-soundtrack .ss-listeners { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.sargas-soundtrack .ss-listener { display: grid; grid-template-columns: auto 1fr auto; gap: 0.1rem 0.4rem; align-items: center; }
+.sargas-soundtrack .ss-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; }
+.sargas-soundtrack .ss-listener[data-state="connected"] .ss-dot { background: #2e8b3d; }
+.sargas-soundtrack .ss-listener[data-state="connecting"] .ss-dot { background: #c68a00; }
+.sargas-soundtrack .ss-listener[data-state="failed"] .ss-dot { background: #b03030; }
+.sargas-soundtrack .ss-peer-state { opacity: 0.8; }
+.sargas-soundtrack .ss-stats { grid-column: 2 / 4; font-size: var(--font-size-11, 11px); opacity: 0.75; }
+.sargas-soundtrack .ss-stats:empty { display: none; }
+.sargas-soundtrack .ss-stats[data-route="relay"] { color: #c68a00; opacity: 1; }
+.sargas-soundtrack .ss-empty { opacity: 0.7; font-style: italic; }
+.sargas-soundtrack .ss-now { margin: 0; }
+.sargas-soundtrack .ss-hint { margin: 0; font-style: italic; opacity: 0.8; }
+
+/* Setup checklist window */
+.sargas-soundtrack .ss-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.sargas-soundtrack .ss-check { display: flex; gap: 0.6rem; align-items: flex-start; }
+.sargas-soundtrack .ss-check p { margin: 0.1rem 0 0.3rem; }
+.sargas-soundtrack .ss-badge { min-width: 3.5rem; text-align: center; padding: 0 0.4rem; border-radius: 999px; background: #8883; }
+.sargas-soundtrack .ss-check[data-status="pass"] .ss-badge { background: #2e8b3d; color: #fff; }
+.sargas-soundtrack .ss-check[data-status="warn"] .ss-badge { background: #c68a00; color: #fff; }
+.sargas-soundtrack .ss-notes { margin-top: 0.75rem; }
+.sargas-soundtrack .ss-checklist-footer { margin-top: 0.75rem; }

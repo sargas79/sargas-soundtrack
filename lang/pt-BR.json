@@ -1,0 +1,131 @@
+{
+  "SARGAS_SOUNDTRACK": {
+    "Title": "Sargas Soundtrack",
+    "Log": {
+      "ready": "Pronto."
+    },
+    "Settings": {
+      "IceServers": {
+        "Name": "Servidores ICE (JSON)",
+        "Hint": "Servidores STUN/TURN usados na conexão de áudio, em formato de lista JSON. Exemplo com TURN: [{\"urls\":\"stun:stun.l.google.com:19302\"},{\"urls\":\"turn:turn.exemplo.com:3478\",\"username\":\"usuario\",\"credential\":\"senha\"}]. Valores inválidos voltam ao padrão.",
+        "ErrorJson": "JSON inválido",
+        "ErrorShape": "esperava uma lista não vazia de objetos com urls (texto ou lista) e, opcionalmente, username e credential (texto)",
+        "ErrorScheme": "toda url deve começar com stun:, stuns:, turn: ou turns:",
+        "Fallback": "Sargas Soundtrack: configuração de servidores ICE inválida ({reason}). Usando o servidor STUN padrão."
+      },
+      "Bitrate": {
+        "Name": "Taxa de bits da transmissão (kbps)",
+        "Hint": "Taxa de bits Opus da música enviada a cada jogador, de 32 a 256. 128 é um bom equilíbrio para música estéreo; aumente se a música for muito rica, diminua se a conexão de algum jogador estiver ruim. A linha do mestre mostra a taxa medida e a perda de pacotes por jogador durante a transmissão."
+      },
+      "Checklist": {
+        "Name": "Lista de verificação",
+        "Label": "Abrir lista",
+        "Hint": "Confere o navegador e a fonte de áudio do mestre e permite enviar um tom de teste aos jogadores. Só o mestre vê isto."
+      }
+    },
+    "Notify": {
+      "Live": "Sargas Soundtrack: você está ao vivo.",
+      "Stopped": "Sargas Soundtrack: transmissão encerrada.",
+      "SourceEnded": "Sargas Soundtrack: a fonte de áudio terminou, então a transmissão foi encerrada."
+    },
+    "Error": {
+      "insecure": "A captura de áudio exige uma conexão segura (HTTPS ou localhost).",
+      "unsupported": "Este navegador não consegue capturar áudio dessa forma.",
+      "wrongSurface": "Compartilhe uma aba do navegador (não uma janela nem a tela inteira) e marque \"Compartilhar também o áudio da guia\".",
+      "noAudio": "Nenhum áudio foi compartilhado. Marque \"Compartilhar também o áudio da guia\" na janela de seleção.",
+      "cancelled": "A captura de áudio foi cancelada ou não foi permitida.",
+      "deviceMissing": "O dispositivo de áudio selecionado não foi encontrado. Verifique se está conectado.",
+      "needsClick": "A captura de aba precisa ser iniciada com um clique em um botão.",
+      "failed": "Falha na captura de áudio. Veja o console para detalhes.",
+      "notActiveGM": "Somente o GM ativo pode transmitir.",
+      "notCapturing": "Escolha uma fonte de áudio antes de entrar ao vivo."
+    },
+    "Row": {
+      "Status": {
+        "Idle": "Fora do ar",
+        "GMLive": "Você está ao vivo",
+        "Connecting": "Conectando…",
+        "Live": "Ao vivo do mestre",
+        "Failed": "Falha na conexão"
+      },
+      "GoLive": "Entrar ao vivo",
+      "Stop": "Parar",
+      "Source": "Fonte",
+      "SourceTab": "Aba do navegador",
+      "SourceDevice": "Dispositivo de áudio",
+      "Device": "Dispositivo de áudio",
+      "RefreshDevices": "Atualizar a lista de dispositivos de áudio (pode usar o microfone por um instante)",
+      "ChooseDevice": "Escolha um dispositivo…",
+      "SavedDevice": "Dispositivo salvo (atualize a lista)",
+      "MissingDevice": "Dispositivo salvo (não encontrado)",
+      "SendLevel": "Volume de envio",
+      "MonitorLevel": "Retorno",
+      "FadeOut": "Baixar aos poucos",
+      "FadeIn": "Subir aos poucos",
+      "Meter": "Nível da música enviada",
+      "Listeners": "Jogadores",
+      "NoListeners": "Nenhum jogador online",
+      "Peer": {
+        "Connected": "Conectado",
+        "Connecting": "Conectando",
+        "Failed": "Falhou",
+        "NotConnected": "Não conectado"
+      },
+      "Stats": {
+        "Loss": "{pct} % de perda"
+      },
+      "NowPlaying": "Tocando agora",
+      "NowPlayingPlaceholder": "Aparece para todos os jogadores",
+      "Mute": "Silenciar para mim",
+      "AudioLockedHint": "O áudio começa depois que você clicar em qualquer lugar da janela."
+    },
+    "Checklist": {
+      "Title": "Sargas Soundtrack: lista de verificação",
+      "Status": {
+        "pass": "OK",
+        "warn": "Atenção",
+        "info": "Info"
+      },
+      "Secure": {
+        "Title": "Conexão segura (HTTPS)",
+        "Pass": "Esta página usa HTTPS (ou localhost), então a captura de áudio é permitida.",
+        "Warn": "Esta página não está em um contexto seguro. Os navegadores bloqueiam a captura de áudio aqui. Abra o Foundry por HTTPS."
+      },
+      "Browser": {
+        "Title": "Navegador captura o áudio da aba",
+        "Pass": "Navegador baseado em Chromium com captura de aba disponível.",
+        "Firefox": "O Firefox não captura o áudio de abas. Use Chrome ou Edge no computador do mestre (ou a fonte Dispositivo de áudio).",
+        "Other": "Este navegador não é baseado em Chromium, então a captura de áudio da aba provavelmente não vai funcionar. Use Chrome ou Edge.",
+        "NoApi": "Este navegador não oferece captura de tela e abas (getDisplayMedia). Use a fonte Dispositivo de áudio ou outro navegador."
+      },
+      "Source": {
+        "Title": "Fonte de áudio",
+        "Tab": "Aba do navegador: o navegador pedirá que você escolha uma aba quando clicar em Entrar ao vivo. Marque \"Compartilhar também o áudio da guia\".",
+        "DeviceNone": "Dispositivo de áudio: nenhum dispositivo escolhido ainda. Escolha um na linha da barra lateral.",
+        "DeviceUnchecked": "Dispositivo de áudio escolhido. Aperte o botão para conferir se ele ainda existe (isso pode usar o microfone por um instante).",
+        "DeviceFound": "Dispositivo de áudio encontrado: {label}.",
+        "DeviceMissing": "O dispositivo de áudio salvo não foi encontrado. Veja se ele está conectado e escolha-o de novo.",
+        "DeviceError": "Não foi possível listar os dispositivos de áudio. Veja a permissão de microfone do navegador."
+      },
+      "Headphones": {
+        "Title": "Fones de ouvido",
+        "Detail": "Use fones de ouvido. Sem eles, as caixas de som devolvem a música para o seu microfone e para o Discord, e todo mundo ouve eco."
+      },
+      "Tone": {
+        "Title": "Tom de teste",
+        "Detail": "Envia aos jogadores um tom estéreo de 10 segundos (440 Hz na esquerda, 660 Hz na direita), pelo controle de Música de cada um. Se você estava ao vivo, a sua fonte volta depois."
+      },
+      "CheckDevices": "Conferir dispositivos",
+      "SendTone": "Enviar tom de teste",
+      "Recheck": "Conferir de novo",
+      "Notes": {
+        "Title": "Se os jogadores não ouvem nada ou ouvem algo estranho",
+        "Muted": "Um navegador ou uma aba silenciados capturam silêncio. Tire o mudo da aba da música (e do navegador) no Windows e no navegador.",
+        "VbDefaults": "O instalador do VB-Cable deixa o CABLE como dispositivo padrão do Windows. Volte a definir suas caixas ou fones e o seu microfone reais como padrão no Windows.",
+        "Discord": "No Discord, deixe entrada e saída em \"Padrão\" ou nos seus dispositivos reais, nunca em um dispositivo CABLE.",
+        "Routing": "Envie só o seu aplicativo de música para desktop para o CABLE Input, no \"Mixer de volume\" ou em \"Volume do aplicativo e preferências de dispositivo\" do Windows.",
+        "Headphones": "Use fones de ouvido enquanto transmite."
+      }
+    }
+  }
+}

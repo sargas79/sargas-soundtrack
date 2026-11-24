@@ -1,0 +1,8 @@
+node_modules/
+*.zip
+release-notes.md
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

@@ -1,0 +1,24 @@
+{{!-- Sargas Soundtrack: setup checklist window. All text is localised and escaped by Handlebars. --}}
+<div class="sargas-soundtrack ss-checklist">
+  <ul class="ss-checks">
+    {{#each checks}}
+    <li class="ss-check" data-check="{{id}}" data-status="{{status}}">
+      <span class="ss-badge">{{statusLabel}}</span>
+      <div class="ss-check-body">
+        <strong>{{title}}</strong>
+        <p>{{detail}}</p>
+        {{#if action}}<button type="button" data-action="{{action}}">{{actionLabel}}</button>{{/if}}
+      </div>
+    </li>
+    {{/each}}
+  </ul>
+  <section class="ss-notes">
+    <h4>{{notesTitle}}</h4>
+    <ul>
+      {{#each notes}}<li>{{this}}</li>{{/each}}
+    </ul>
+  </section>
+  <footer class="ss-checklist-footer">
+    <button type="button" data-action="recheck"><i class="fa-solid fa-rotate"></i> {{recheckLabel}}</button>
+  </footer>
+</div>

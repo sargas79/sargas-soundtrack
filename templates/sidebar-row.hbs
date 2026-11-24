@@ -1,0 +1,50 @@
+{{!-- Sargas Soundtrack: sidebar row. Static structure only: dynamic values are written by scripts/sidebar.js. --}}
+<section class="sargas-soundtrack ss-row" data-ss-role="{{#if isGM}}gm{{else}}player{{/if}}">
+  <header class="ss-head">
+    <h3 class="ss-title"><i class="fa-solid fa-music"></i> {{localize "SARGAS_SOUNDTRACK.Title"}}</h3>
+    <span class="ss-live-state" data-ss="live-state" data-state="idle"></span>
+  </header>
+  {{#if isGM}}
+  <div class="ss-buttons">
+    <button type="button" data-ss="go"><i class="fa-solid fa-tower-broadcast"></i> {{localize "SARGAS_SOUNDTRACK.Row.GoLive"}}</button>
+    <button type="button" data-ss="stop" hidden><i class="fa-solid fa-stop"></i> {{localize "SARGAS_SOUNDTRACK.Row.Stop"}}</button>
+  </div>
+  <div class="ss-field">
+    <label>{{localize "SARGAS_SOUNDTRACK.Row.Source"}}
+      <select data-ss="source">
+        <option value="tab">{{localize "SARGAS_SOUNDTRACK.Row.SourceTab"}}</option>
+        <option value="device">{{localize "SARGAS_SOUNDTRACK.Row.SourceDevice"}}</option>
+      </select>
+    </label>
+  </div>
+  <div class="ss-field ss-device" data-ss="device-wrap" hidden>
+    <select data-ss="device" aria-label="{{localize "SARGAS_SOUNDTRACK.Row.Device"}}"></select>
+    <button type="button" data-ss="refresh-devices" title="{{localize "SARGAS_SOUNDTRACK.Row.RefreshDevices"}}" aria-label="{{localize "SARGAS_SOUNDTRACK.Row.RefreshDevices"}}"><i class="fa-solid fa-rotate"></i></button>
+  </div>
+  <div class="ss-field">
+    <label>{{localize "SARGAS_SOUNDTRACK.Row.SendLevel"}}
+      <input type="range" min="0" max="1" step="0.01" data-ss="send">
+    </label>
+  </div>
+  <div class="ss-field">
+    <label>{{localize "SARGAS_SOUNDTRACK.Row.MonitorLevel"}}
+      <input type="range" min="0" max="1" step="0.01" data-ss="monitor">
+    </label>
+  </div>
+  <div class="ss-buttons">
+    <button type="button" data-ss="fade-out" disabled><i class="fa-solid fa-volume-low"></i> {{localize "SARGAS_SOUNDTRACK.Row.FadeOut"}}</button>
+    <button type="button" data-ss="fade-in" disabled><i class="fa-solid fa-volume-high"></i> {{localize "SARGAS_SOUNDTRACK.Row.FadeIn"}}</button>
+  </div>
+  <div class="ss-meter" data-ss="meter" role="meter" aria-label="{{localize "SARGAS_SOUNDTRACK.Row.Meter"}}"><div class="ss-meter-fill"></div></div>
+  <ul class="ss-listeners" data-ss="listeners" aria-label="{{localize "SARGAS_SOUNDTRACK.Row.Listeners"}}"></ul>
+  <div class="ss-field">
+    <label>{{localize "SARGAS_SOUNDTRACK.Row.NowPlaying"}}
+      <input type="text" maxlength="120" data-ss="now-playing-input" placeholder="{{localize "SARGAS_SOUNDTRACK.Row.NowPlayingPlaceholder"}}">
+    </label>
+  </div>
+  {{else}}
+  <label class="ss-mute"><input type="checkbox" data-ss="mute"> {{localize "SARGAS_SOUNDTRACK.Row.Mute"}}</label>
+  <p class="ss-now" data-ss="now-playing-row" hidden><i class="fa-solid fa-compact-disc"></i> <span data-ss="now-playing"></span></p>
+  <p class="ss-hint" data-ss="audio-hint" hidden>{{localize "SARGAS_SOUNDTRACK.Row.AudioLockedHint"}}</p>
+  {{/if}}
+</section>

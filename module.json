@@ -1,0 +1,42 @@
+{
+  "id": "sargas-soundtrack",
+  "title": "Sargas Soundtrack",
+  "description": "Streams the GM's live music into every player's Foundry music channel.",
+  "version": "0.0.0",
+  "authors": [
+    {
+      "name": "Diego Vescovini",
+      "url": "https://github.com/sargas79"
+    }
+  ],
+  "url": "https://github.com/sargas79/sargas-soundtrack",
+  "manifest": "https://github.com/sargas79/sargas-soundtrack/releases/latest/download/module.json",
+  "download": "https://github.com/sargas79/sargas-soundtrack/releases/download/v0.0.0/sargas-soundtrack.zip",
+  "bugs": "https://github.com/sargas79/sargas-soundtrack/issues",
+  "changelog": "https://github.com/sargas79/sargas-soundtrack/blob/main/CHANGELOG.md",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "compatibility": {
+    "minimum": "14.370",
+    "verified": "14.370"
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/sargas-soundtrack.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    }
+  ],
+  "socket": true
+}
