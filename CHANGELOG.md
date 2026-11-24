@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-24
+
 ### Changed
 - CI and release workflows use the Node 24 releases of their GitHub Actions (`actions/checkout` v7, `actions/setup-node` v7, `softprops/action-gh-release` v3).
 
