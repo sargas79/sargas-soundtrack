@@ -1,8 +1,8 @@
 import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { installFoundryStub } from "./helpers/foundry-stub.js";
-import { FakeAudioContext, FakePC, FakeStream, FakeTrack, flush } from "./helpers/fakes.js";
-import { Broadcaster } from "../scripts/broadcaster.js";
+import { FakeAudioContext, FakePC, FakeStream, FakeTrack, fakeScheduler, flush } from "./helpers/fakes.js";
+import { Broadcaster, PEER_CONNECT_TIMEOUT } from "../scripts/broadcaster.js";
 import { Capture, CaptureError } from "../scripts/capture.js";
 import { Signaling } from "../scripts/signaling.js";
 import { MSG, HOOKS, SOCKET_CHANNEL } from "../scripts/constants.js";
@@ -376,4 +376,51 @@ test("a failed offer or answer also marks the peer failed; a plain close does no
   const c = await connect("p2");
   c.setState("closed");
   assert.equal(b.statuses().find(s => s.userId === "p2"), undefined);
+});
+
+test("connections are built from getRtcConfig when given (iceTransportPolicy included)", async () => {
+  b.destroy();
+  const cfg = { iceServers: [{ urls: "turn:t.example:3478", username: "u", credential: "c" }], iceTransportPolicy: "relay" };
+  b = new Broadcaster({
+    signaling: new Signaling(SOCKET_CHANNEL, stub.socket), capture,
+    getIceServers: () => ICE, getRtcConfig: () => cfg, getBitrate: () => 128, RTCPeerConnection: FakePC, windowLike: win
+  });
+  await live();
+  const pc = await connect("p1");
+  assert.deepEqual(pc.config, cfg);
+  assert.equal(pc.config.iceTransportPolicy, "relay");
+});
+
+test("a peer that never connects is marked failed after the connect timeout; a connected one is not", async () => {
+  b.destroy();
+  const sched = fakeScheduler();
+  b = new Broadcaster({
+    signaling: new Signaling(SOCKET_CHANNEL, stub.socket), capture,
+    getIceServers: () => ICE, getBitrate: () => 128, RTCPeerConnection: FakePC, windowLike: win, scheduler: sched
+  });
+  await live();
+  const stuck = await connect("p1");
+  const ok = await connect("p2");
+  ok.setState("connected");
+  assert.deepEqual(sched.pending.map(t => t.ms), [PEER_CONNECT_TIMEOUT, PEER_CONNECT_TIMEOUT]);
+  sched.fireNext(); sched.fireNext();
+  assert.equal(stuck.closed, true);
+  assert.deepEqual(b.statuses().map(s => `${s.userId}:${s.state}`).sort(), ["p1:failed", "p2:connected"]);
+  // a new REQUEST from the failed player starts over (and clears the failed mark)
+  await connect("p1");
+  assert.ok(b.statuses().some(s => s.userId === "p1" && s.state === "connecting"));
+});
+
+test("closing a peer cancels its connect timeout", async () => {
+  b.destroy();
+  const sched = fakeScheduler();
+  b = new Broadcaster({
+    signaling: new Signaling(SOCKET_CHANNEL, stub.socket), capture,
+    getIceServers: () => ICE, getBitrate: () => 128, RTCPeerConnection: FakePC, windowLike: win, scheduler: sched
+  });
+  await live();
+  await connect("p1");
+  assert.equal(sched.pending.length, 1);
+  b.userConnected({ id: "p1" }, false);
+  assert.equal(sched.pending.length, 0);
 });

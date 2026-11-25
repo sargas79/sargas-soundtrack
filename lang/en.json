@@ -13,6 +13,15 @@
         "ErrorScheme": "every url must start with stun:, stuns:, turn: or turns:",
         "Fallback": "Sargas Soundtrack: invalid ICE servers setting ({reason}). Using the default STUN server."
       },
+      "RelayOnly": {
+        "Name": "Relay only (TURN test)",
+        "Hint": "Forces every connection through a TURN relay, to check that the relay works. Leave it off in normal play: it fails for anyone who cannot reach your TURN server. A change applies to new connections: Stop and Go live again to apply it to everyone.",
+        "NoTurn": "Sargas Soundtrack: Relay only is on but no TURN server is configured, so nobody will be able to connect. Add a TURN server or turn Relay only off."
+      },
+      "UseFoundryRelay": {
+        "Name": "Also use Foundry's relay server",
+        "Hint": "When Foundry's Audio/Video settings use a Custom Relay Server, add it to the ICE servers of this module. Foundry's default \"Provided by Signaling Server\" is not a relay and is not used."
+      },
       "Bitrate": {
         "Name": "Stream bitrate (kbps)",
         "Hint": "Opus bitrate of the music sent to each player, from 32 to 256. 128 is a good balance for stereo music; raise it for very rich music, lower it if a player's connection struggles. The GM row shows the measured bitrate and packet loss per player while live. A new bitrate applies to new connections: Stop and Go live again to apply it to everyone."
@@ -106,6 +115,14 @@
         "DeviceFound": "Audio device found: {label}.",
         "DeviceMissing": "The saved audio device was not found. Check that it is connected and pick it again.",
         "DeviceError": "Could not list the audio devices. Check the browser's microphone permission."
+      },
+      "Relay": {
+        "Title": "Relay (TURN)",
+        "OnlyNoTurn": "Relay only is on but no TURN server is configured (neither in this module's ICE servers nor in Foundry's relay setting), so nobody can connect. Add a TURN server or turn Relay only off.",
+        "OnlyActive": "Relay only is on: every connection goes through the relay. Turn it off after testing.",
+        "PassModule": "A TURN server is configured in this module's ICE servers.",
+        "PassFoundry": "A TURN server is configured in Foundry's Audio/Video relay setting, and this module reuses it.",
+        "None": "No TURN server is configured. Most tables do not need one. The GM row shows relay for a player whose connection uses a relay. See the README, section TURN with coturn."
       },
       "Headphones": {
         "Title": "Headphones",

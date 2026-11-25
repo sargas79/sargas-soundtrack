@@ -97,6 +97,8 @@ separate volume control. Foundry's global mute applies too.
 | Setting | Scope | Default | Purpose |
 | --- | --- | --- | --- |
 | ICE servers (JSON) | World, in Module Settings | one public STUN server | STUN and TURN servers for every connection. Invalid values fall back to the default and warn the GM once. See [TURN with coturn](#turn-with-coturn). |
+| Relay only (TURN test) | World, in Module Settings | off | Forces every connection through a TURN relay, to check that it works. Leave it off in normal play. A change applies to new connections: Stop and Go live again. See [Testing the relay](#testing-the-relay). |
+| Also use Foundry's relay server | World, in Module Settings | on | When Foundry's Audio/Video settings use a Custom Relay Server, the module adds it to its ICE servers. See [Reusing Foundry's relay](#reusing-foundrys-relay). |
 | Stream bitrate (kbps) | World, in Module Settings | 128 | Opus bitrate of the stream, 32 to 256. 128 is a good balance for stereo music. A change applies to new connections: Stop and Go live again to apply it to everyone. |
 | Setup checklist | Menu in Module Settings, GM only | n/a | Opens the [checklist](#setup-checklist). |
 | `nowPlaying` | World, hidden | empty | The "Now playing" line. |
@@ -218,6 +220,24 @@ settings (replace host, user and password):
 `username` and `credential`. If the JSON is invalid the module falls back to the
 default STUN server and shows the GM a warning once. Note that the setting is
 readable by every connected client, so use a TURN user made only for this.
+
+### Reusing Foundry's relay
+
+Foundry's default Audio/Video relay setting, "Provided by Signaling Server", is
+not a relay: it gives the browsers only public STUN servers, and the Foundry
+server runs no TURN (checked in Foundry 14.370). If you set a **Custom Relay
+Server** (URL, username and password) in Foundry's Audio/Video settings, the
+module reuses it as an extra ICE server, unless **Also use Foundry's relay
+server** is off. The module skips it if the same URL is already in **ICE servers
+(JSON)**.
+
+### Testing the relay
+
+Turn on **Relay only (TURN test)**, then Stop and Go live again, because the
+setting applies to new connections. Every player row in the GM row must show
+`relay`. A player who shows *Failed* (after about 20 seconds) cannot reach your
+TURN server. Turn Relay only off afterwards: it is only a test, and with it on
+nobody can connect without a working TURN server.
 
 ## Troubleshooting
 

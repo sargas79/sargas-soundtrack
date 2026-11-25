@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- "Relay only (TURN test)" setting: forces every connection through a TURN relay, to check that the relay works.
+- "Also use Foundry's relay server" setting: reuses the Custom Relay Server from Foundry's Audio/Video settings as an ICE server.
+- "Relay (TURN)" item in the setup checklist.
+
+### Fixed
+- A connection that never comes up (for example Relay only without a reachable TURN server) now shows as failed after about 15–20 seconds and retries, instead of staying on "Connecting".
+
 ## [0.1.2] - 2026-11-25
 
 ### Fixed

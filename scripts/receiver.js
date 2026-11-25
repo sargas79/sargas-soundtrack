@@ -10,6 +10,9 @@ import { summarizeStats } from "./stats.js";
 export const RETRY_DELAYS = [2000, 5000, 10000];
 /** How long to wait for an OFFER after sending a REQUEST before counting it as a failed attempt. */
 export const OFFER_TIMEOUT = 8000;
+/** How long a connection may take after the answer is sent before it counts as a failed attempt
+ * (with no usable route, for example Relay only without a reachable TURN server, ICE can stay "checking"). */
+export const CONNECT_TIMEOUT = 15000;
 
 export class Receiver {
   #lock = null;
@@ -32,16 +35,18 @@ export class Receiver {
    * @param {import("./signaling.js").Signaling} o.signaling
    * @param {() => number} o.getBitrate
    * @param {() => object[]} [o.getIceServers]
+   * @param {() => RTCConfiguration} [o.getRtcConfig] full connection config; wins over getIceServers
    * @param {{setTimeout:Function, clearTimeout:Function}} [o.scheduler] injectable for tests
    * @param {typeof RTCPeerConnection} [o.RTCPeerConnection] injectable for tests
    * @param {Document} [o.document] injectable for tests
    */
-  constructor({ signaling, getBitrate, getIceServers = () => [], scheduler = globalThis, RTCPeerConnection = null, document = null }) {
+  constructor({ signaling, getBitrate, getIceServers = () => [], getRtcConfig = null, scheduler = globalThis, RTCPeerConnection = null, document = null }) {
     this.signaling = signaling;
     this.RTCPeerConnection = RTCPeerConnection;
     this.document = document;
     this.getBitrate = getBitrate;
     this.getIceServers = getIceServers;
+    this.getRtcConfig = getRtcConfig;
     this.scheduler = scheduler;
     this.#volumeHook = Hooks.on("globalPlaylistVolumeChanged", v => {
       this.#hookVolume = Number(v) || 0;
@@ -222,7 +227,7 @@ export class Receiver {
   async #onOffer(msg) {
     this.#teardown();
     const lock = this.#lock;
-    const pc = new (this.RTCPeerConnection ?? globalThis.RTCPeerConnection)({ iceServers: this.getIceServers() });
+    const pc = new (this.RTCPeerConnection ?? globalThis.RTCPeerConnection)(this.getRtcConfig ? this.getRtcConfig() : { iceServers: this.getIceServers() });
     this.#pc = pc;
     this.#setStatus("connecting");
 
@@ -232,6 +237,7 @@ export class Receiver {
     pc.onconnectionstatechange = () => {
       if (this.#pc !== pc) return;
       if (pc.connectionState === "connected") {
+        this.#cancelRetry(); // the connect timeout
         this.#retries = 0;
         this.#setStatus("live");
       } else if (pc.connectionState === "failed") {
@@ -254,6 +260,14 @@ export class Receiver {
       await pc.setLocalDescription({ type: "answer", sdp });
       if (this.#pc !== pc) return;
       this.signaling.send(MSG.ANSWER, { sessionId: lock.sessionId, sdp }, lock.senderId);
+      // Connect timeout: shares the retry slot, so OFFER / END / LIVE and a successful connection cancel it.
+      this.#cancelRetry();
+      this.#retryTimer = this.scheduler.setTimeout(() => {
+        this.#retryTimer = null;
+        if (this.#pc !== pc || pc.connectionState === "connected") return;
+        console.log(LOG_PREFIX, "no connection after the answer; will re-request");
+        this.#connectionFailed(pc);
+      }, CONNECT_TIMEOUT);
     } catch (err) {
       console.warn(LOG_PREFIX, "offer handling failed", err);
       this.#connectionFailed(pc);

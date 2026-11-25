@@ -1,6 +1,7 @@
 /** ApplicationV2 "Setup checklist" window, opened from the module settings (GM only). */
 import { MODULE_ID, SETTINGS, CHECKLIST_TEMPLATE } from "./constants.js";
 import { Capture } from "./capture.js";
+import { turnSource } from "./settings.js";
 import { runChecks, buildChecklistView, readEnvironment } from "./checklist.js";
 
 const i18n = () => ({ t: k => game.i18n.localize(k), f: (k, d) => game.i18n.format(k, d) });
@@ -39,6 +40,8 @@ export function createChecklistApp() {
       const get = key => game.settings.get(MODULE_ID, key);
       const checks = runChecks(readEnvironment(), {
         source: get(SETTINGS.SOURCE), deviceId: get(SETTINGS.DEVICE_ID), devices: this.devices, devicesError: this.devicesError
+      }, {
+        relayOnly: !!get(SETTINGS.RELAY_ONLY), turnSource: turnSource()
       });
       return buildChecklistView(checks, i18n());
     }

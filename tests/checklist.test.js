@@ -7,7 +7,7 @@ import { installFoundryStub } from "./helpers/foundry-stub.js";
 import { strictI18n, loadLang, flatKeys } from "./helpers/i18n.js";
 import {
   isChromiumBased, checkSecureContext, checkTabCapture, checkSource, checkHeadphones, checkTone,
-  runChecks, buildChecklistView, readEnvironment, NOTE_KEYS
+  runChecks, buildChecklistView, readEnvironment, NOTE_KEYS, checkRelay
 } from "../scripts/checklist.js";
 import { createChecklistApp } from "../scripts/checklist-app.js";
 import { registerSettings } from "../scripts/settings.js";
@@ -198,4 +198,42 @@ test("styles are scoped under .sargas-soundtrack", () => {
   for (const [, selectors] of css.matchAll(/(?:^|})\s*([^{}@]+)\{/g)) {
     for (const sel of selectors.split(",")) assert.match(sel.trim(), /^\.sargas-soundtrack/, `unscoped selector: ${sel.trim()}`);
   }
+});
+
+// --- relay check ---------------------------------------------------------------------------------------
+
+test("checkRelay: warn, relay-only info, pass (module / Foundry) and none info", () => {
+  const warn = checkRelay({ relayOnly: true, turnSource: null });
+  assert.deepEqual([warn.status, warn.detailKey], ["warn", "SARGAS_SOUNDTRACK.Checklist.Relay.OnlyNoTurn"]);
+  for (const src of ["module", "foundry"]) {
+    const r = checkRelay({ relayOnly: true, turnSource: src });
+    assert.deepEqual([r.status, r.detailKey], ["info", "SARGAS_SOUNDTRACK.Checklist.Relay.OnlyActive"]);
+  }
+  assert.equal(checkRelay({ relayOnly: false, turnSource: "module" }).detailKey, "SARGAS_SOUNDTRACK.Checklist.Relay.PassModule");
+  const f = checkRelay({ relayOnly: false, turnSource: "foundry" });
+  assert.deepEqual([f.status, f.detailKey], ["pass", "SARGAS_SOUNDTRACK.Checklist.Relay.PassFoundry"]);
+  const none = checkRelay({ relayOnly: false, turnSource: null });
+  assert.deepEqual([none.status, none.detailKey], ["info", "SARGAS_SOUNDTRACK.Checklist.Relay.None"]);
+});
+
+test("runChecks adds the relay check after the source check when given; every state localises", () => {
+  const env = { isSecureContext: true, userAgent: CHROME_UA, brands: [], hasGetDisplayMedia: true };
+  const src = { source: "tab", deviceId: "", devices: null };
+  for (const relay of [{ relayOnly: true, turnSource: null }, { relayOnly: true, turnSource: "module" }, { relayOnly: false, turnSource: "foundry" }, { relayOnly: false, turnSource: null }]) {
+    const checks = runChecks(env, src, relay);
+    assert.deepEqual(checks.map(c => c.id), ["secure", "browser", "source", "relay", "headphones", "tone"]);
+    const v = buildChecklistView(checks, i18n);
+    assert.ok(v.checks.every(c => c.title && c.detail));
+  }
+});
+
+test("checklist app feeds the relay settings into the checks", async () => {
+  stub = installFoundryStub();
+  registerSettings();
+  const app = new (createChecklistApp())();
+  let ctx = await app._prepareContext({});
+  assert.equal(ctx.checks.find(c => c.id === "relay").status, "info");
+  await game.settings.set(MODULE_ID, SETTINGS.RELAY_ONLY, true);
+  ctx = await app._prepareContext({});
+  assert.equal(ctx.checks.find(c => c.id === "relay").status, "warn");
 });

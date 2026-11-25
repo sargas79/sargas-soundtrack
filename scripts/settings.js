@@ -44,8 +44,9 @@ export function clampBitrate(n) {
 }
 
 let warned = false;
-/** Test hook: forget that the invalid-setting warning was shown. */
-export function resetIceWarning() { warned = false; }
+let relayWarned = false;
+/** Test hook: forget that the invalid-setting and relay-only warnings were shown. */
+export function resetIceWarning() { warned = false; relayWarned = false; }
 
 /** Read the world ICE servers setting, falling back to the default (and warning the GM once). */
 export function getIceServers() {
@@ -58,6 +59,59 @@ export function getIceServers() {
     }
   }
   return servers;
+}
+
+const isTurnUrl = u => /^turns?:/i.test(String(u).trim());
+const urlList = urls => (Array.isArray(urls) ? urls : [urls]).map(u => String(u).trim());
+
+/** True when any server in the list has a turn: or turns: URL. */
+export function hasTurn(servers) {
+  return servers.some(s => urlList(s?.urls ?? []).some(isTurnUrl));
+}
+
+/**
+ * Foundry's own custom relay (Audio/Video settings), as an RTCIceServer, or null.
+ * The "Provided by Signaling Server" type is not a relay, and Foundry only uses a custom one
+ * when url, username and password are all set.
+ */
+export function foundryRelayServer() {
+  let turn;
+  try { turn = game.settings.get("core", "rtcWorldSettings")?.turn; } catch { return null; }
+  if (turn?.type !== "custom") return null;
+  const { url, username, password } = turn;
+  if (![url, username, password].every(v => typeof v === "string" && v.trim() !== "")) return null;
+  return { urls: url, username, credential: password };
+}
+
+const sameUrls = (a, b) => JSON.stringify(urlList(a).sort()) === JSON.stringify(urlList(b).sort());
+
+/** Where a TURN server comes from right now: "module" (ICE servers setting), "foundry" (core relay setting) or null. */
+export function turnSource() {
+  const { servers } = parseIceServers(game.settings.get(MODULE_ID, SETTINGS.ICE_SERVERS));
+  if (hasTurn(servers)) return "module";
+  if (game.settings.get(MODULE_ID, SETTINGS.USE_FOUNDRY_RELAY)) {
+    const relay = foundryRelayServer();
+    if (relay && hasTurn([relay])) return "foundry";
+  }
+  return null;
+}
+
+/**
+ * The RTCPeerConnection configuration: the module's ICE servers, plus Foundry's custom relay when allowed,
+ * and the transport policy ("relay" when Relay only is on).
+ */
+export function getRtcConfig() {
+  const iceServers = getIceServers();
+  if (game.settings.get(MODULE_ID, SETTINGS.USE_FOUNDRY_RELAY)) {
+    const relay = foundryRelayServer();
+    if (relay && !iceServers.some(s => sameUrls(s.urls, relay.urls))) iceServers.push(relay);
+  }
+  const relayOnly = !!game.settings.get(MODULE_ID, SETTINGS.RELAY_ONLY);
+  if (relayOnly && !hasTurn(iceServers) && !relayWarned && game.user?.isGM) {
+    relayWarned = true;
+    ui.notifications.warn(game.i18n.localize("SARGAS_SOUNDTRACK.Settings.RelayOnly.NoTurn"));
+  }
+  return { iceServers, iceTransportPolicy: relayOnly ? "relay" : "all" };
 }
 
 export function getBitrate() {
@@ -85,6 +139,14 @@ export function registerSettings({ checklistApp = null, onChange = {} } = {}) {
     name: `${S}.IceServers.Name`, hint: `${S}.IceServers.Hint`,
     scope: "world", config: true, type: String,
     default: JSON.stringify(DEFAULT_ICE_SERVERS)
+  });
+  reg(SETTINGS.RELAY_ONLY, {
+    name: `${S}.RelayOnly.Name`, hint: `${S}.RelayOnly.Hint`,
+    scope: "world", config: true, type: Boolean, default: false
+  });
+  reg(SETTINGS.USE_FOUNDRY_RELAY, {
+    name: `${S}.UseFoundryRelay.Name`, hint: `${S}.UseFoundryRelay.Hint`,
+    scope: "world", config: true, type: Boolean, default: true
   });
   reg(SETTINGS.BITRATE, {
     name: `${S}.Bitrate.Name`, hint: `${S}.Bitrate.Hint`,

@@ -2,7 +2,7 @@ import { test, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { installFoundryStub } from "./helpers/foundry-stub.js";
 import { FakeAudioContext, FakePC, FakeStream, FakeTrack, fakeDocument, fakeScheduler, flush } from "./helpers/fakes.js";
-import { Receiver, RETRY_DELAYS, OFFER_TIMEOUT } from "../scripts/receiver.js";
+import { Receiver, RETRY_DELAYS, OFFER_TIMEOUT, CONNECT_TIMEOUT } from "../scripts/receiver.js";
 import { Signaling } from "../scripts/signaling.js";
 import { MSG, HOOKS, SOCKET_CHANNEL, MODULE_ID, SETTINGS } from "../scripts/constants.js";
 import { registerSettings } from "../scripts/settings.js";
@@ -392,3 +392,34 @@ test("destroy releases the hook and tears down", async () => {
 });
 
 void FakeStream; void FakeTrack;
+
+test("the connection is built from getRtcConfig when given (iceTransportPolicy included)", async () => {
+  r.destroy();
+  const cfg = { iceServers: [{ urls: "turn:t.example:3478", username: "u", credential: "c" }], iceTransportPolicy: "relay" };
+  r = new Receiver({
+    signaling: new Signaling(SOCKET_CHANNEL, stub.socket), getBitrate: () => 128, getIceServers: () => ICE, getRtcConfig: () => cfg,
+    scheduler: sched, RTCPeerConnection: FakePC, document: doc
+  });
+  const pc = await connect();
+  assert.deepEqual(pc.config, cfg);
+  assert.equal(pc.config.iceTransportPolicy, "relay");
+});
+
+test("no connection within the connect timeout after the answer counts as a failure and backs off", async () => {
+  assert.equal(CONNECT_TIMEOUT, 15000);
+  const pc = await connect();
+  assert.equal(sched.pending.length, 1);
+  assert.equal(sched.pending[0].ms, CONNECT_TIMEOUT);
+  pc.connectionState = "checking";
+  assert.equal(sched.fireNext(), CONNECT_TIMEOUT);
+  assert.equal(r.status, "failed");
+  assert.equal(pc.closed, true);
+  assert.equal(sched.pending[0].ms, RETRY_DELAYS[0], "the normal retry follows");
+});
+
+test("a connection that comes up cancels the connect timeout", async () => {
+  const pc = await connect();
+  pc.setState("connected");
+  assert.equal(sched.pending.length, 0);
+  assert.equal(r.status, "live");
+});

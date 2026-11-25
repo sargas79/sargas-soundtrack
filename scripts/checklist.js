@@ -38,6 +38,20 @@ export function checkSource({ source, deviceId, devices, devicesError = false })
     : { ...base, status: "warn", detailKey: `${K}.Source.DeviceMissing`, action: "checkDevices" };
 }
 
+/**
+ * @param {{relayOnly:boolean, turnSource:"module"|"foundry"|null}} s  turnSource = where a TURN server comes from, if any
+ */
+export function checkRelay({ relayOnly, turnSource }) {
+  const base = { id: "relay", titleKey: `${K}.Relay.Title` };
+  if (relayOnly) {
+    return turnSource
+      ? { ...base, status: "info", detailKey: `${K}.Relay.OnlyActive` }
+      : { ...base, status: "warn", detailKey: `${K}.Relay.OnlyNoTurn` };
+  }
+  if (turnSource) return { ...base, status: "pass", detailKey: `${K}.Relay.${turnSource === "foundry" ? "PassFoundry" : "PassModule"}` };
+  return { ...base, status: "info", detailKey: `${K}.Relay.None` };
+}
+
 export const checkHeadphones = () => ({ id: "headphones", status: "info", titleKey: `${K}.Headphones.Title`, detailKey: `${K}.Headphones.Detail` });
 export const checkTone = () => ({ id: "tone", status: "info", titleKey: `${K}.Tone.Title`, detailKey: `${K}.Tone.Detail`, action: "sendTone" });
 
@@ -47,9 +61,10 @@ export const NOTE_KEYS = Object.freeze(["Muted", "VbDefaults", "Discord", "Routi
 /**
  * @param {{isSecureContext:boolean, userAgent:string, brands:{brand:string}[], hasGetDisplayMedia:boolean}} env
  * @param {{source:string, deviceId:string, devices:object[]|null, devicesError?:boolean}} source
+ * @param {{relayOnly:boolean, turnSource:"module"|"foundry"|null}} [relay] adds the relay check when given
  */
-export function runChecks(env, source) {
-  return [checkSecureContext(env), checkTabCapture(env), checkSource(source), checkHeadphones(), checkTone()];
+export function runChecks(env, source, relay) {
+  return [checkSecureContext(env), checkTabCapture(env), checkSource(source), ...(relay ? [checkRelay(relay)] : []), checkHeadphones(), checkTone()];
 }
 
 const ACTION_LABEL = { checkDevices: "CheckDevices", sendTone: "SendTone" };

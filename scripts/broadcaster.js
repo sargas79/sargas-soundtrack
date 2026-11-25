@@ -8,6 +8,10 @@ import { mungeOffer } from "./sdp.js";
 import { CaptureError } from "./capture.js";
 import { summarizeStats } from "./stats.js";
 
+/** A player whose connection is not up this long after the offer is shown as failed. Longer than the
+ * player's own 15 s connect timeout, so a player's re-request normally replaces the peer first. */
+export const PEER_CONNECT_TIMEOUT = 20000;
+
 export class Broadcaster {
   /** @type {Map<string, {pc:RTCPeerConnection, state:string, pendingIce:object[], hasRemote:boolean, prev:object|null}>} */
   #peers = new Map();
@@ -22,14 +26,17 @@ export class Broadcaster {
    * @param {import("./signaling.js").Signaling} o.signaling
    * @param {import("./capture.js").Capture} o.capture
    * @param {() => object[]} o.getIceServers
+   * @param {() => RTCConfiguration} [o.getRtcConfig] full connection config; wins over getIceServers
    * @param {() => number} o.getBitrate
    * @param {typeof RTCPeerConnection} [o.RTCPeerConnection] injectable for tests
    * @param {{addEventListener:Function, removeEventListener:Function}|null} [o.windowLike] receives "beforeunload"
    */
-  constructor({ signaling, capture, getIceServers, getBitrate, RTCPeerConnection = null, windowLike = globalThis }) {
+  constructor({ signaling, capture, getIceServers, getRtcConfig = null, getBitrate, RTCPeerConnection = null, windowLike = globalThis, scheduler = globalThis }) {
+    this.scheduler = scheduler;
     this.signaling = signaling;
     this.capture = capture;
     this.getIceServers = getIceServers;
+    this.getRtcConfig = getRtcConfig;
     this.getBitrate = getBitrate;
     this.RTCPeerConnection = RTCPeerConnection;
     this.windowLike = windowLike;
@@ -150,6 +157,7 @@ export class Broadcaster {
 
   #closePeer(uid, entry) {
     if (this.#peers.get(uid) === entry) this.#peers.delete(uid);
+    if (entry.timer != null) { this.scheduler.clearTimeout(entry.timer); entry.timer = null; }
     entry.pc.onicecandidate = null;
     entry.pc.onconnectionstatechange = null;
     try { entry.pc.close(); } catch { /* already closed */ }
@@ -169,7 +177,7 @@ export class Broadcaster {
     this.#failed.delete(uid);
 
     const sessionId = this.#sessionId;
-    const pc = new (this.RTCPeerConnection ?? globalThis.RTCPeerConnection)({ iceServers: this.getIceServers() });
+    const pc = new (this.RTCPeerConnection ?? globalThis.RTCPeerConnection)(this.getRtcConfig ? this.getRtcConfig() : { iceServers: this.getIceServers() });
     const entry = { pc, state: "connecting", pendingIce: [], hasRemote: false, prev: null };
     this.#peers.set(uid, entry);
     const stale = () => this.#peers.get(uid) !== entry;
@@ -189,6 +197,13 @@ export class Broadcaster {
       if (stale()) return;
       this.signaling.send(MSG.OFFER, { sessionId, sdp }, uid);
       this.#applyBitrate(transceiver.sender);
+      entry.timer = this.scheduler.setTimeout(() => {
+        entry.timer = null;
+        if (stale() || entry.state === "connected") return;
+        console.log(LOG_PREFIX, `peer ${uid} did not connect in time; marked failed`);
+        this.#failPeer(uid, entry);
+      }, PEER_CONNECT_TIMEOUT);
+      entry.timer?.unref?.(); // never keeps a Node test process alive
     } catch (err) {
       console.warn(LOG_PREFIX, "offer failed for", uid, err);
       if (!stale()) this.#failPeer(uid, entry);

@@ -15,6 +15,8 @@ export const MSG = Object.freeze({
 export const SETTINGS = Object.freeze({
   ICE_SERVERS: "iceServers",
   BITRATE: "bitrate",
+  RELAY_ONLY: "relayOnly",
+  USE_FOUNDRY_RELAY: "useFoundryRelay",
   NOW_PLAYING: "nowPlaying",
   SOURCE: "source",
   DEVICE_ID: "deviceId",

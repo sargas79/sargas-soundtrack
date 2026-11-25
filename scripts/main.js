@@ -3,7 +3,7 @@
  * GM (active) = Capture + Broadcaster; everyone else = Receiver.
  */
 import { MODULE_ID, SOCKET_CHANNEL, LOG_PREFIX, HOOKS, SETTINGS, SIDEBAR_TEMPLATE, CHECKLIST_TEMPLATE } from "./constants.js";
-import { registerSettings, getIceServers, getBitrate } from "./settings.js";
+import { registerSettings, getIceServers, getRtcConfig, getBitrate } from "./settings.js";
 import { Signaling } from "./signaling.js";
 import { Capture, errorKey } from "./capture.js";
 import { Broadcaster } from "./broadcaster.js";
@@ -109,9 +109,9 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   if (game.user.isActiveGM) {
     capture = new Capture();
-    broadcaster = new Broadcaster({ signaling, capture, getIceServers, getBitrate });
+    broadcaster = new Broadcaster({ signaling, capture, getIceServers, getRtcConfig, getBitrate });
   } else {
-    receiver = new Receiver({ signaling, getBitrate, getIceServers });
+    receiver = new Receiver({ signaling, getBitrate, getIceServers, getRtcConfig });
   }
   const peer = () => broadcaster ?? receiver;
   signaling.onMessage((msg, senderId) => {
