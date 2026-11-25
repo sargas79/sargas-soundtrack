@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-25
+
 ### Fixed
 - Space on the GM row's buttons paused the game (Foundry's pause keybinding) instead of pressing the button.
 - Keyboard focus no longer drops to the page when Go live and Stop swap.
