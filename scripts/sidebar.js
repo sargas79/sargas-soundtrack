@@ -74,6 +74,11 @@ export class RowView {
   }
 
   bind() {
+    // Foundry binds Space to "pause game" and swallows it, so a focused button would never be pressed
+    // with Space. Keep Space on our own buttons away from the global keybindings.
+    this.row.addEventListener?.("keydown", ev => {
+      if ((ev.key === " " || ev.code === "Space") && ev.target?.closest?.("button")) ev.stopPropagation();
+    });
     if (this.role === "gm") this.#bindGM(); else this.#bindPlayer();
     this.refresh();
   }
@@ -114,19 +119,26 @@ export class RowView {
   #applyGM(m) {
     const set = (name, fn) => { const e = this.el(name); if (e) fn(e); };
     set("live-state", e => { e.textContent = m.statusLabel; e.dataset.state = m.statusKey; });
+    // Go live and Stop swap places: keep keyboard focus on the visible one instead of dropping it to the page.
+    const go = this.el("go"), stop = this.el("stop");
+    const focused = go?.ownerDocument?.activeElement;
     set("go", e => { e.hidden = m.goHidden; });
     set("stop", e => { e.hidden = m.stopHidden; });
+    if (focused === go && go?.hidden && stop && !stop.hidden) stop.focus?.();
+    else if (focused === stop && stop?.hidden && go && !go.hidden) go.focus?.();
     set("fade-out", e => { e.disabled = m.fadeDisabled; });
     set("fade-in", e => { e.disabled = m.fadeDisabled; });
-    set("source", e => { if (e.value !== m.source) e.value = m.source; });
+    // Controls the GM is using are never overwritten (a setting change can arrive mid-drag).
+    const idle = e => e.ownerDocument?.activeElement !== e;
+    set("source", e => { if (idle(e) && e.value !== m.source) e.value = m.source; });
     set("device-wrap", e => { e.hidden = m.deviceHidden; });
     set("device", e => {
       if (this.#last.devices === m.deviceOptionsHtml) return;
       e.innerHTML = m.deviceOptionsHtml;
       this.#last.devices = m.deviceOptionsHtml;
     });
-    set("send", e => { if (e.value !== m.sendLevel) e.value = m.sendLevel; });
-    set("monitor", e => { if (e.value !== m.monitorLevel) e.value = m.monitorLevel; });
+    set("send", e => { if (idle(e) && e.value !== m.sendLevel) e.value = m.sendLevel; });
+    set("monitor", e => { if (idle(e) && e.value !== m.monitorLevel) e.value = m.monitorLevel; });
     this.#applyListeners(m);
     set("now-playing-input", e => { if (e.value !== m.nowPlaying && e.ownerDocument?.activeElement !== e) e.value = m.nowPlaying; });
     this.#syncMeter(m.live);

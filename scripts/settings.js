@@ -67,7 +67,7 @@ export function getBitrate() {
 /**
  * @param {object} [o]
  * @param {Function|null} [o.checklistApp] ApplicationV2 class for the "Setup checklist" settings menu
- * @param {{nowPlaying?:(value:string)=>void, mute?:(value:boolean)=>void}} [o.onChange] UI hooks run when a setting changes
+ * @param {{nowPlaying?:(value:string)=>void, mute?:(value:boolean)=>void, gmControls?:()=>void}} [o.onChange] UI hooks run when a setting changes
  */
 export function registerSettings({ checklistApp = null, onChange = {} } = {}) {
   const S = "SARGAS_SOUNDTRACK.Settings";
@@ -94,9 +94,9 @@ export function registerSettings({ checklistApp = null, onChange = {} } = {}) {
   });
   reg(SETTINGS.NOW_PLAYING, { scope: "world", config: false, type: String, default: "", onChange: changed("nowPlaying") });
 
-  reg(SETTINGS.SOURCE, { scope: "client", config: false, type: String, default: "tab", choices: { tab: "tab", device: "device" } });
-  reg(SETTINGS.DEVICE_ID, { scope: "client", config: false, type: String, default: "" });
-  reg(SETTINGS.SEND_LEVEL, { scope: "client", config: false, type: Number, range: { min: 0, max: 1, step: 0.01 }, default: 1 });
-  reg(SETTINGS.MONITOR_LEVEL, { scope: "client", config: false, type: Number, range: { min: 0, max: 1, step: 0.01 }, default: 0.8 });
+  reg(SETTINGS.SOURCE, { scope: "client", config: false, type: String, default: "tab", choices: { tab: "tab", device: "device" }, onChange: changed("gmControls") });
+  reg(SETTINGS.DEVICE_ID, { scope: "client", config: false, type: String, default: "", onChange: changed("gmControls") });
+  reg(SETTINGS.SEND_LEVEL, { scope: "client", config: false, type: Number, range: { min: 0, max: 1, step: 0.01 }, default: 1, onChange: changed("gmControls") });
+  reg(SETTINGS.MONITOR_LEVEL, { scope: "client", config: false, type: Number, range: { min: 0, max: 1, step: 0.01 }, default: 0.8, onChange: changed("gmControls") });
   reg(SETTINGS.MUTE, { scope: "client", config: false, type: Boolean, default: false, onChange: changed("mute") });
 }

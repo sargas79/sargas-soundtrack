@@ -15,7 +15,7 @@
       },
       "Bitrate": {
         "Name": "Stream bitrate (kbps)",
-        "Hint": "Opus bitrate of the music sent to each player, from 32 to 256. 128 is a good balance for stereo music; raise it for very rich music, lower it if a player's connection struggles. The GM row shows the measured bitrate and packet loss per player while live."
+        "Hint": "Opus bitrate of the music sent to each player, from 32 to 256. 128 is a good balance for stereo music; raise it for very rich music, lower it if a player's connection struggles. The GM row shows the measured bitrate and packet loss per player while live. A new bitrate applies to new connections: Stop and Go live again to apply it to everyone."
       },
       "Checklist": {
         "Name": "Setup checklist",

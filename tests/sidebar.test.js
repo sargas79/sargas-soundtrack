@@ -59,7 +59,7 @@ function makeUi({ deferred = false } = {}) {
 
 function setup({ user = "gm1", apiOpts, deferred } = {}) {
   stub = installFoundryStub({ users, currentUserId: user });
-  registerSettings({ onChange: { nowPlaying: text => ui?.nowPlayingChanged(text), mute: () => ui?.refresh() } });
+  registerSettings({ onChange: { nowPlaying: text => ui?.nowPlayingChanged(text), mute: () => ui?.refresh(), gmControls: () => ui?.refresh() } });
   clock = fakeClock();
   reports = { started: [], stopped: [] };
   game.audio = {
@@ -491,4 +491,44 @@ test("userConnected refreshes the GM listener list (not connected users appear a
   game.users.get("p2").active = false;
   Hooks.callAll("userConnected", game.users.get("p2"), false);
   assert.ok(!part("listeners").innerHTML.includes("data-user=\"p2\""));
+});
+
+test("Space on a row button is kept from Foundry's pause keybinding; other keys and inputs are not touched", async () => {
+  setup({ apiOpts: { live: true } });
+  await ui.onRender({}, el);
+  const press = (target, key, code) => { let stopped = false; row().fire("keydown", { key, code, target, stopPropagation: () => { stopped = true; } }); return stopped; };
+  const button = { closest: sel => (sel === "button" ? {} : null) };
+  const input = { closest: () => null };
+  assert.equal(press(button, " ", "Space"), true, "Space on a button must not reach the pause keybinding");
+  assert.equal(press(button, "Enter", "Enter"), false);
+  assert.equal(press(input, " ", "Space"), false, "inputs are left to Foundry (it already ignores them)");
+});
+
+test("keyboard focus follows Go live / Stop when they swap", async () => {
+  setup();
+  await ui.onRender({}, el);
+  const doc = { activeElement: null };
+  for (const n of ["go", "stop"]) part(n).ownerDocument = doc;
+  part("go").focus();
+  api.broadcaster.live = true;
+  ui.refresh();
+  assert.equal(part("go").hidden, true);
+  assert.equal(doc.activeElement, part("stop"), "focus moves to Stop instead of the page");
+  api.broadcaster.live = false;
+  ui.refresh();
+  assert.equal(doc.activeElement, part("go"), "and back to Go live");
+});
+
+test("a source or level changed outside the row (macro, API) updates the row, but never the control being used", async () => {
+  setup();
+  await ui.onRender({}, el);
+  await game.settings.set(MODULE_ID, SETTINGS.SOURCE, "device");
+  assert.equal(part("source").value, "device");
+  assert.equal(part("device-wrap").hidden, false);
+  await game.settings.set(MODULE_ID, SETTINGS.MONITOR_LEVEL, 0.3);
+  assert.equal(String(part("monitor").value), "0.3");
+  part("send").value = "0.42";
+  part("send").focus();
+  await game.settings.set(MODULE_ID, SETTINGS.SEND_LEVEL, 0.9);
+  assert.equal(part("send").value, "0.42", "the slider the GM is dragging is not overwritten");
 });

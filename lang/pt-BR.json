@@ -15,7 +15,7 @@
       },
       "Bitrate": {
         "Name": "Taxa de bits da transmissão (kbps)",
-        "Hint": "Taxa de bits Opus da música enviada a cada jogador, de 32 a 256. 128 é um bom equilíbrio para música estéreo; aumente se a música for muito rica, diminua se a conexão de algum jogador estiver ruim. A linha do mestre mostra a taxa medida e a perda de pacotes por jogador durante a transmissão."
+        "Hint": "Taxa de bits Opus da música enviada a cada jogador, de 32 a 256. 128 é um bom equilíbrio para música estéreo; aumente se a música for muito rica, diminua se a conexão de algum jogador estiver ruim. A linha do mestre mostra a taxa medida e a perda de pacotes por jogador durante a transmissão. Uma nova taxa vale para novas conexões: use Parar e Entrar ao vivo de novo para aplicá-la a todos."
       },
       "Checklist": {
         "Name": "Lista de verificação",

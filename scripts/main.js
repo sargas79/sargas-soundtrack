@@ -98,7 +98,7 @@ Hooks.once("init", () => {
   sidebar = createSidebar(() => game.modules.get(MODULE_ID)?.api ?? null);
   registerSettings({
     checklistApp: createChecklistApp(),
-    onChange: { nowPlaying: text => sidebar.nowPlayingChanged(text), mute: () => sidebar.refresh() }
+    onChange: { nowPlaying: text => sidebar.nowPlayingChanged(text), mute: () => sidebar.refresh(), gmControls: () => sidebar.refresh() }
   });
   sidebar.register();
   preloadTemplates([SIDEBAR_TEMPLATE, CHECKLIST_TEMPLATE]);

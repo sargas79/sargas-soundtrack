@@ -97,7 +97,7 @@ separate volume control. Foundry's global mute applies too.
 | Setting | Scope | Default | Purpose |
 | --- | --- | --- | --- |
 | ICE servers (JSON) | World, in Module Settings | one public STUN server | STUN and TURN servers for every connection. Invalid values fall back to the default and warn the GM once. See [TURN with coturn](#turn-with-coturn). |
-| Stream bitrate (kbps) | World, in Module Settings | 128 | Opus bitrate of the stream, 32 to 256. 128 is a good balance for stereo music. |
+| Stream bitrate (kbps) | World, in Module Settings | 128 | Opus bitrate of the stream, 32 to 256. 128 is a good balance for stereo music. A change applies to new connections: Stop and Go live again to apply it to everyone. |
 | Setup checklist | Menu in Module Settings, GM only | n/a | Opens the [checklist](#setup-checklist). |
 | `nowPlaying` | World, hidden | empty | The "Now playing" line. |
 | `source`, `deviceId` | Client, hidden | `tab`, empty | The GM's capture source and device. |

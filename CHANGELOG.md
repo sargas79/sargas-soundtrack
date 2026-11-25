@@ -6,6 +6,15 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Space on the GM row's buttons paused the game (Foundry's pause keybinding) instead of pressing the button.
+- Keyboard focus no longer drops to the page when Go live and Stop swap.
+- The GM row now follows source and level settings changed outside it (for example by a macro).
+
+### Changed
+- The bitrate setting's hint and the README say a new bitrate applies to new connections (Stop and Go live to apply it to everyone).
+- The release workflow commits the dated changelog back to main after publishing.
+
 ## [0.1.1] - 2026-11-24
 
 ### Changed
