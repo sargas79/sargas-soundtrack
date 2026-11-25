@@ -95,3 +95,37 @@ jobs:
           files: |
             module.json
             sargas-soundtrack.zip
+
+      # Write the dated changelog back to main so main matches the release.
+      # Only when main's CHANGELOG.md is still the one that was tagged: entries
+      # added under [Unreleased] after tagging were not released, so then it
+      # warns and leaves main alone. Runs after publishing, so it never blocks
+      # a release. Pushes made with GITHUB_TOKEN do not start other workflows.
+      - name: Commit changelog back to main
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          released="$RUNNER_TEMP/changelog-released.md"
+          tagged="$RUNNER_TEMP/changelog-tagged.md"
+          onmain="$RUNNER_TEMP/changelog-main.md"
+          cp CHANGELOG.md "$released"
+          git show "$TAG:CHANGELOG.md" > "$tagged"
+          git fetch --quiet origin main
+          git show origin/main:CHANGELOG.md > "$onmain"
+          if cmp -s "$onmain" "$released"; then
+            echo "main already records $VERSION in CHANGELOG.md"
+            exit 0
+          fi
+          if ! cmp -s "$onmain" "$tagged"; then
+            echo "::warning::CHANGELOG.md on main changed after $TAG, so it was left alone. Record the $VERSION release there by hand."
+            exit 0
+          fi
+          tree="$RUNNER_TEMP/main"
+          git worktree add --quiet --detach "$tree" origin/main
+          cp "$released" "$tree/CHANGELOG.md"
+          git -C "$tree" -c user.name="github-actions[bot]" \
+            -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit --quiet -m "Record the $VERSION release in the changelog" -- CHANGELOG.md
+          git -C "$tree" push --quiet origin HEAD:main
+          echo "Committed the $VERSION changelog to main"
